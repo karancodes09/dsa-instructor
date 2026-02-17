@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DSA Instructor AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f172a 100%);
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 700px;
+      background: rgba(2, 6, 23, 0.8);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(51, 65, 85, 0.3);
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 35px;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    h1 {
+      font-size: 2.5em;
+      font-weight: 700;
+      background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: #9ca3af;
+      font-size: 0.95em;
+      font-weight: 300;
+      letter-spacing: 0.5px;
+    }
+
+    .input-section {
+      margin-bottom: 25px;
+      animation: fadeIn 0.8s ease-out 0.1s both;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      resize: none;
+      border-radius: 12px;
+      border: 2px solid rgba(51, 65, 85, 0.5);
+      padding: 16px;
+      font-size: 15px;
+      outline: none;
+      background: rgba(15, 23, 42, 0.6);
+      color: #e5e7eb;
+      font-family: 'Segoe UI', sans-serif;
+      transition: all 0.3s ease;
+      line-height: 1.5;
+    }
+
+    textarea:focus {
+      border-color: #3b82f6;
+      background: rgba(15, 23, 42, 0.9);
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    }
+
+    textarea::placeholder {
+      color: #6b7280;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn 0.8s ease-out 0.2s both;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .output-section {
+      animation: fadeIn 0.8s ease-out 0.3s both;
+    }
+
+    .output-label {
+      display: block;
+      font-size: 0.85em;
+      color: #9ca3af;
+      margin-bottom: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .output {
+      padding: 20px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 2px solid rgba(51, 65, 85, 0.3);
+      min-height: 80px;
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      line-height: 1.6;
+      font-size: 14px;
+      color: #d1d5db;
+      transition: all 0.3s ease;
+      scroll-behavior: smooth;
+    }
+
+    .output::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .output::-webkit-scrollbar-track {
+      background: rgba(51, 65, 85, 0.2);
+      border-radius: 10px;
+    }
+
+    .output::-webkit-scrollbar-thumb {
+      background: rgba(59, 130, 246, 0.4);
+      border-radius: 10px;
+    }
+
+    .output::-webkit-scrollbar-thumb:hover {
+      background: rgba(59, 130, 246, 0.6);
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .spinner {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .spinner span {
+      width: 8px;
+      height: 8px;
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite;
+    }
+
+    .spinner span:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .spinner span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .spinner span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes bounce {
+      0%, 80%, 100% {
+        transform: scale(1);
+        opacity: 0.5;
+      }
+      40% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+    }
+
+    .success-animation {
+      animation: slideInRight 0.5s ease-out;
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      .app {
+        padding: 25px;
+      }
+
+      h1 {
+        font-size: 1.8em;
+      }
+
+      textarea {
+        height: 80px;
+        font-size: 14px;
+      }
+
+      .output {
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+    <div class="header">
+      <h1>DSA Instructor</h1>
+      <p class="subtitle">Your AI-Powered Data Structures & Algorithms Guide</p>
+    </div>
+
+    <div class="input-section">
+      <textarea id="question" placeholder="Ask me anything about DSA... (arrays, linked lists, algorithms, etc.)"></textarea>
+      <button id="askBtn" onclick="sendQuestion()">Ask Question</button>
+    </div>
+
+    <div class="output-section">
+      <span class="output-label">Response</span>
+      <div id="output" class="output">✨ Ready to help! Ask a DSA question...</div>
+    </div>
+  </div>
+
+  <script>
+    const questionInput = document.getElementById("question");
+    const output = document.getElementById("output");
+    const askBtn = document.getElementById("askBtn");
+
+    async function sendQuestion() {
+      const question = questionInput.value.trim();
+
+      if (!question) {
+        output.textContent = "⚠️ Please enter a question.";
+        output.style.color = "#fca5a5";
+        return;
+      }
+
+      // Disable button and show loading
+      askBtn.disabled = true;
+      output.innerHTML = '<div class="loading"><span>Getting answer</span><div class="spinner"><span></span><span></span><span></span></div></div>';
+      output.style.color = "#9ca3af";
+
+      try {
+        const response = await fetch("http://localhost:3001/ask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ question })
+        });
+
+        const data = await response.json();
+        
+        // Add success animation
+        output.classList.remove("success-animation");
+        void output.offsetWidth; // Trigger reflow
+        output.classList.add("success-animation");
+        
+        output.textContent = data.reply || "❌ No response received.";
+        output.style.color = "#d1d5db";
+
+      } catch (err) {
+        output.textContent = "❌ Server not responding. Is the backend running on localhost:3001?";
+        output.style.color = "#fca5a5";
+      } finally {
+        askBtn.disabled = false;
+      }
+    }
+
+    // Allow sending with Enter key
+    questionInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendQuestion();
+      }
+    });
+  </script>
+
+</body>
+</html>
